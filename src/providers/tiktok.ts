@@ -34,18 +34,18 @@ async function fetchJson<T>(url: string): Promise<T> {
 export class TiktokProvider implements SocialProvider {
   async getProfile(username: string): Promise<Profile> {
     const data = await fetchJson<any>(`${BASE_URL}/profile?handle=${encodeURIComponent(username)}`)
-    console.log('root keys:', Object.keys(data))
-    console.log('sample:', JSON.stringify(data).slice(0, 500))
+    const u = data.user
+    const s = data.stats
     return {
-      username: data.uniqueId,
-      displayName: data.nickname,
-      bio: data.signature ?? '',
-      followers: parseInt(data.statsV2?.followerCount ?? data.followerCount ?? '0'),
-      following: parseInt(data.statsV2?.friendCount ?? data.friendCount ?? '0'),
-      likes: parseInt(data.statsV2?.heart ?? data.heart ?? '0'),
-      postCount: parseInt(data.statsV2?.videoCount ?? data.videoCount ?? '0'),
-      isVerified: data.verified ?? false,
-      avatarUrl: data.avatarMedium ?? '',
+      username: u.uniqueId,
+      displayName: u.nickname,
+      bio: u.signature ?? '',
+      followers: s.followerCount ?? 0,
+      following: s.followingCount ?? 0,
+      likes: s.heartCount ?? 0,
+      postCount: s.videoCount ?? 0,
+      isVerified: u.verified ?? false,
+      avatarUrl: u.avatarMedium ?? '',
     }
   }
 
