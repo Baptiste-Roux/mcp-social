@@ -31,6 +31,7 @@ registerInstagramTools(server, instagramProvider)
 
 const app = express()
 app.use(cors())
+app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
 const PUBLIC_PATHS = new Set([
@@ -78,7 +79,9 @@ app.get('/oauth/authorize', (req: Request, res: Response) => {
 
 // Token endpoint
 app.post('/oauth/token', (req: Request, res: Response) => {
-  const { grant_type, code, client_id, client_secret, redirect_uri } = req.body as Record<string, string>
+  const body = req.body as Record<string, string>
+  const { grant_type, code, client_id, client_secret, redirect_uri } = body
+  console.log('token request body:', JSON.stringify(body))
   if (grant_type !== 'authorization_code') {
     res.status(400).json({ error: 'unsupported_grant_type' })
     return
