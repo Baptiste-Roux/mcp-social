@@ -51,7 +51,7 @@ export class TiktokProvider implements SocialProvider {
 
   async searchByHashtag(hashtag: string, limit = 20): Promise<HashtagPost[]> {
     const data = await fetchJson<any>(
-      `${BASE_URL}/hashtag?tag=${encodeURIComponent(hashtag)}&limit=${limit}`
+      `${BASE_URL}/search/hashtag?hashtag=${encodeURIComponent(hashtag)}&limit=${limit}`
     )
     const items: any[] = data.videos ?? data.posts ?? data.items ?? data ?? []
     return items.slice(0, limit).map((v: any) => ({
@@ -80,8 +80,9 @@ export class TiktokProvider implements SocialProvider {
 
   async getPosts(username: string, limit = 10): Promise<Post[]> {
     const data = await fetchJson<any>(
-      `${BASE_URL}/user/posts?handle=${encodeURIComponent(username)}&limit=${limit}`
+      `https://api.scrapecreators.com/v3/tiktok/profile/videos?handle=${encodeURIComponent(username)}&limit=${limit}`
     )
+    console.log('raw posts:', JSON.stringify(data, null, 2).slice(0, 500))
     const items: any[] = data.videos ?? data.posts ?? data.items ?? data ?? []
     return items.map((v: any) => ({
       id: String(v.id ?? v.aweme_id ?? ''),
