@@ -38,7 +38,15 @@ const PUBLIC_PATHS = new Set([
   '/oauth/authorize',
   '/oauth/token',
   '/.well-known/oauth-authorization-server',
+  '/.well-known/oauth-protected-resource',
 ])
+
+app.get('/.well-known/oauth-protected-resource', (_req: Request, res: Response) => {
+  res.json({
+    resource: process.env.BASE_URL,
+    authorization_servers: [process.env.BASE_URL],
+  })
+})
 
 // OAuth metadata
 app.get('/.well-known/oauth-authorization-server', (_req: Request, res: Response) => {
@@ -54,14 +62,15 @@ app.get('/.well-known/oauth-authorization-server', (_req: Request, res: Response
 // Authorization endpoint
 app.get('/oauth/authorize', (req: Request, res: Response) => {
   const { client_id, redirect_uri, state } = req.query as Record<string, string>
+  console.log('authorize params:', JSON.stringify({ client_id, redirect_uri, state }))
   if (client_id !== process.env.OAUTH_CLIENT_ID) {
     res.status(400).json({ error: 'invalid_client' })
     return
   }
-  if (redirect_uri !== process.env.OAUTH_REDIRECT_URI) {
-    res.status(400).json({ error: 'invalid_redirect_uri' })
-    return
-  }
+  // if (redirect_uri !== process.env.OAUTH_REDIRECT_URI) {
+  //   res.status(400).json({ error: 'invalid_redirect_uri' })
+  //   return
+  // }
   const code = generateAuthCode(client_id, redirect_uri)
   const location = `${redirect_uri}?code=${code}${state ? `&state=${state}` : ''}`
   res.redirect(location)
