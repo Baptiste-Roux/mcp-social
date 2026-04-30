@@ -34,6 +34,8 @@ async function fetchJson<T>(url: string): Promise<T> {
 export class TiktokProvider implements SocialProvider {
   async getProfile(username: string): Promise<Profile> {
     const data = await fetchJson<any>(`${BASE_URL}/profile?handle=${encodeURIComponent(username)}`)
+    console.log('root keys:', Object.keys(data))
+    console.log('sample:', JSON.stringify(data).slice(0, 500))
     return {
       username: data.uniqueId,
       displayName: data.nickname,
