@@ -82,19 +82,16 @@ export class TiktokProvider implements SocialProvider {
     const data = await fetchJson<any>(
       `https://api.scrapecreators.com/v3/tiktok/profile/videos?handle=${encodeURIComponent(username)}&limit=${limit}`
     )
-    console.log('raw posts:', JSON.stringify(data, null, 2).slice(0, 500))
-    const items: any[] = data.videos ?? data.posts ?? data.items ?? data ?? []
-    return items.map((v: any) => ({
-      id: String(v.id ?? v.aweme_id ?? ''),
-      url: v.webVideoUrl ?? v.url ?? `https://www.tiktok.com/@${username}/video/${v.id}`,
-      description: v.desc ?? v.description ?? '',
-      likes: Number(v.diggCount ?? v.stats?.diggCount ?? v.likes ?? 0),
-      comments: Number(v.commentCount ?? v.stats?.commentCount ?? v.comments ?? 0),
-      shares: Number(v.shareCount ?? v.stats?.shareCount ?? v.shares ?? 0),
-      views: Number(v.playCount ?? v.stats?.playCount ?? v.views ?? 0),
-      publishedAt: v.createTime
-        ? new Date(Number(v.createTime) * 1000).toISOString()
-        : (v.publishedAt ?? ''),
+    const items = data.aweme_list ?? []
+    return items.map((item: any) => ({
+      id: item.aweme_id,
+      url: `https://www.tiktok.com/@${username}/video/${item.aweme_id}`,
+      description: item.desc ?? '',
+      likes: item.statistics?.digg_count ?? 0,
+      comments: item.statistics?.comment_count ?? 0,
+      shares: item.statistics?.share_count ?? 0,
+      views: item.statistics?.play_count ?? 0,
+      publishedAt: new Date(item.create_time * 1000).toISOString(),
     }))
   }
 }
