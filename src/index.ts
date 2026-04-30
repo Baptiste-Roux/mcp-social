@@ -18,16 +18,18 @@ process.on('uncaughtException', (err) => {
   process.exit(1)
 })
 
-const server = new McpServer({
-  name: 'mcp-social',
-  version: '0.1.0',
-})
-
 const tiktokProvider = new TiktokProvider()
 const instagramProvider = new InstagramProvider()
 
-registerTiktokTools(server, tiktokProvider)
-registerInstagramTools(server, instagramProvider)
+function createMcpServer(): McpServer {
+  const server = new McpServer({
+    name: 'mcp-social',
+    version: '0.1.0',
+  })
+  registerTiktokTools(server, tiktokProvider)
+  registerInstagramTools(server, instagramProvider)
+  return server
+}
 
 const app = express()
 app.use(cors())
@@ -116,6 +118,7 @@ app.get('/health', (_req: Request, res: Response) => {
 
 app.all('/mcp', async (req: Request, res: Response) => {
   try {
+    const server = createMcpServer()
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined })
     await server.connect(transport)
     await transport.handleRequest(req, res, req.body)
