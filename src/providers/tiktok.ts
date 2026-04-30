@@ -7,6 +7,9 @@ export interface HashtagPost {
   username: string
   views: number
   likes: number
+  comments: number
+  shares: number
+  publishedAt: string
 }
 
 export interface AccountResult {
@@ -53,16 +56,17 @@ export class TiktokProvider implements SocialProvider {
     const data = await fetchJson<any>(
       `${BASE_URL}/search/hashtag?hashtag=${encodeURIComponent(hashtag)}&limit=${limit}`
     )
-    console.log('hashtag root keys:', Object.keys(data))
-    console.log('hashtag sample:', JSON.stringify(data).slice(0, 300))
-    const items: any[] = data.videos ?? data.posts ?? data.items ?? data ?? []
-    return items.slice(0, limit).map((v: any) => ({
-      id: String(v.id ?? v.aweme_id ?? ''),
-      url: v.webVideoUrl ?? v.url ?? `https://www.tiktok.com/@${v.author?.uniqueId}/video/${v.id}`,
-      description: v.desc ?? v.description ?? '',
-      username: v.author?.uniqueId ?? v.author?.username ?? v.username ?? '',
-      views: Number(v.playCount ?? v.stats?.playCount ?? v.views ?? 0),
-      likes: Number(v.diggCount ?? v.stats?.diggCount ?? v.likes ?? 0),
+    const items = data.aweme_list ?? []
+    return items.slice(0, limit).map((item: any) => ({
+      id: item.aweme_id,
+      url: `https://www.tiktok.com/@${item.author?.unique_id}/video/${item.aweme_id}`,
+      description: item.desc ?? '',
+      likes: item.statistics?.digg_count ?? 0,
+      comments: item.statistics?.comment_count ?? 0,
+      shares: item.statistics?.share_count ?? 0,
+      views: item.statistics?.play_count ?? 0,
+      publishedAt: new Date(item.create_time * 1000).toISOString(),
+      username: item.author?.unique_id ?? '',
     }))
   }
 
