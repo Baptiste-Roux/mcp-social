@@ -114,15 +114,16 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok' })
 })
 
-const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined })
-await server.connect(transport)
-
 app.all('/mcp', async (req: Request, res: Response) => {
   try {
+    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined })
+    await server.connect(transport)
     await transport.handleRequest(req, res, req.body)
   } catch (err) {
     console.error('MCP error:', err)
-    res.status(500).json({ error: String(err) })
+    if (!res.headersSent) {
+      res.status(500).json({ error: String(err) })
+    }
   }
 })
 
