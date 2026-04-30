@@ -118,7 +118,12 @@ const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefi
 await server.connect(transport)
 
 app.all('/mcp', async (req: Request, res: Response) => {
-  await transport.handleRequest(req, res, req.body)
+  try {
+    await transport.handleRequest(req, res, req.body)
+  } catch (err) {
+    console.error('MCP error:', err)
+    res.status(500).json({ error: String(err) })
+  }
 })
 
 const port = process.env.PORT ?? 3000
