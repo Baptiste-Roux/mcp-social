@@ -53,6 +53,8 @@ export class TiktokProvider implements SocialProvider {
     const data = await fetchJson<any>(
       `${BASE_URL}/search/hashtag?hashtag=${encodeURIComponent(hashtag)}&limit=${limit}`
     )
+    console.log('hashtag root keys:', Object.keys(data))
+    console.log('hashtag sample:', JSON.stringify(data).slice(0, 300))
     const items: any[] = data.videos ?? data.posts ?? data.items ?? data ?? []
     return items.slice(0, limit).map((v: any) => ({
       id: String(v.id ?? v.aweme_id ?? ''),
